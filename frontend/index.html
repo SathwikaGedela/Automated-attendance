@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Enterprise AI Attendance Management System">
+    <meta name="author" content="Enterprise Solutions">
+    <title>Enterprise AI ATTENDANCE - GMR</title>
+    <!-- Favicon -->
+    <img src="https://logowik.com/content/uploads/images/gmr-group2964.jpg" 
+     alt="GMR Logo" 
+     style="width: 200px; height: auto; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); display: block; margin: 50px auto;">
+      
+ <!-- Load Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <!-- Load modern CSS framework -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+    <style>
+        :root {
+            --primary-color: #0052cc;
+            --secondary-color: #0065ff;
+            --success-color: #36b37e;
+            --danger-color: #ff5630;
+            --warning-color: #ffab00;
+            --info-color: #00b8d9;
+            --dark-color: #172b4d;
+            --light-color: #f4f5f7;
+            --border-radius: 4px;
+            --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            height: 100vh;
+        }
+
+        .app-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .app-logo {
+            height: 48px;
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            opacity: 0.9;
+        }
+
+        .camera-container {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .camera-container:hover .camera-overlay {
+            opacity: 1;
+        }
+
+        #video {
+            width: 100%;
+            display: block;
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .record-item:last-child {
+            border-bottom: none;
+        }
+
+        .record-name {
+            font-weight: 500;
+        }
+
+        .record-time {
+            color: #6B778C;
+            font-size: 0.9rem;
+        }
+
+        .skeleton-loader {
+            height: 24px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: var(--border-radius);
+            margin: 0.5rem 0;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .holiday-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 16px;
+            background-color: var(--warning-color);
+            color: white;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn.processing .loading-spinner {
+            display: inline-block;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            border-radius: var(--border-radius);
+            background-color: rgba(255, 86, 48, 0.1);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<!-- Added Marquee and New Sections -->
+<marquee behavior="scroll" direction="left" style="background: var(--primary-color); color: white; padding: 10px; font-size: 1.2rem; font-weight: bold;">
+    Enti shock ayyava code lo change chesko kavalsindhi enjoy pandagowww
+</marquee>
+
+<div class="row">
+    <!-- User Dashboard -->
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-header">
+                <i class="fas fa-user-circle"></i> User Dashboard
+            </div>
+            <div class="card-body">
+                <h5>Today's Attendance</h5>
+                <h2 id="attendance-count">0</h2>
+                <button class="btn btn-info" onclick="refreshAttendance()">Refresh</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Live Updates -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bell"></i> Live Updates
+            </div>
+            <div class="card-body" id="live-updates" style="max-height: 200px; overflow-y: auto;">
+                <p class="text-muted text-center">No new updates...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Summary -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card text-center">
+            <div class="card-header">
+                <i class="fas fa-chart-line"></i> Weekly Attendance Summary
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card text-center">
+            <div class="card-header">
+                <i class="fas fa-calendar-check"></i> Monthly Check-in Status
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Data will be updated soon...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Smooth Animations */
+    .card {
+        transition: transform 0.3s ease-in-out;
+    }
+    .card:hover {
+        transform: scale(1.05);
+    }
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function refreshAttendance() {
+        let count = Math.floor(Math.random() * 100);
+        document.getElementById('attendance-count').innerText = count;
+        let updateSection = document.getElementById('live-updates');
+        let newUpdate = document.createElement('p');
+        newUpdate.className = 'fade-in';
+        newUpdate.innerHTML = `<i class='fas fa-user-check'></i> ${count} people checked in.`;
+        updateSection.prepend(newUpdate);
+    }
+
+    // Attendance Chart
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Attendance',
+                data: [12, 19, 3, 5, 2, 3, 7],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+    <div class="app-container">
+        <header class="app-header">
+              <h1 class="display-6">Enterprise AI Attendance Management</h1>
+            <p class="text-muted">Powered by Advanced Facial Recognition Technology</p>
+        </header>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-camera"></i> Facial Recognition</span>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="cameraToggle" checked>
+                            <label class="form-check-label" for="cameraToggle">Camera</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="camera-container">
+                            <video id="video" autoplay muted></video>
+                            <div class="camera-overlay">
+                                <button id="capture" class="btn btn-lg btn-light">
+                                    <span class="loading-spinner"></span>
+                                    <i class="fas fa-user-check"></i> Scan Face
+                                </button>
+                            </div>
+                        </div>
+                        <div class="error-message" id="camera-error">
+                            <i class="fas fa-exclamation-triangle"></i> Unable to access camera. Please check permissions.
+                        </div>
+                        <div class="mt-3">
+                            <button id="capture-btn" class="btn btn-primary">
+                                <span class="loading-spinner"></span>
+                                <i class="fas fa-user-check"></i> Capture & Recognize
+                            </button>
+                            <button id="download" class="btn btn-success">
+                                <i class="fas fa-file-download"></i> Export Records (CSV)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-alt"></i> Calendar & Events
+                    </div>
+                    <div class="card-body">
+                        <div id="current-date" class="text-center mb-3">
+                            <h3 class="mb-0"></h3>
+                            <p class="text-muted"></p>
+                        </div>
+                        <h5>Upcoming Holidays</h5>
+                        <div id="holiday-records">
+                            <div class="skeleton-loader"></div>
+                            <div class="skeleton-loader"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-clipboard-list"></i> Attendance Records</span>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Filter
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                        <li><a class="dropdown-item" href="#" data-filter="all">All Records</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="today">Today Only</a></li>
+                        <li><a class="dropdown-item" href="#" data-filter="week">This Week</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="attendance-container">
+                    <div id="attendance-records">
+                        <div class="text-center text-muted py-4" id="no-records">
+                            <i class="fas fa-info-circle"></i> No attendance records yet
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container"></div>
+
+    <!-- JavaScript dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://127.0.0.1:5000';
+        const API_ENDPOINTS = {
+            recognize: `${API_BASE_URL}/recognize`,
+            download: `${API_BASE_URL}/download_csv`,
+            holidays: `${API_BASE_URL}/holidays`
+        };
+
+        // DOM Elements
+        const elements = {
+            video: document.getElementById('video'),
+            captureBtn: document.getElementById('capture-btn'),
+            captureOverlay: document.getElementById('capture'),
+            downloadBtn: document.getElementById('download'),
+            attendanceRecords: document.getElementById('attendance-records'),
+            holidayRecords: document.getElementById('holiday-records'),
+            cameraToggle: document.getElementById('cameraToggle'),
+            noRecords: document.getElementById('no-records'),
+            cameraError: document.getElementById('camera-error'),
+            currentDate: document.getElementById('current-date'),
+            toastContainer: document.querySelector('.toast-container')
+        };
+
+        // State management
+        const state = {
+            stream: null,
+            attendanceData: [],
+            holidayData: [],
+            isProcessing: false
+        };
+
+        // Initialize date display
+        function updateDateDisplay() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            elements.currentDate.querySelector('h3').textContent = now.toLocaleDateString('en-US', { 
+                month: 'short', day: 'numeric' 
+            });
+            elements.currentDate.querySelector('p').textContent = now.toLocaleDateString('en-US', { 
+                weekday: 'long', year: 'numeric' 
+            });
+        }
+
+        // Initialize camera
+        async function initCamera() {
+            try {
+                if (elements.cameraToggle.checked) {
+                    state.stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 },
+                            facingMode: "user"
+                        } 
+                    });
+                    elements.video.srcObject = state.stream;
+                    elements.cameraError.style.display = 'none';
+                } else {
+                    stopCamera();
+                }
+            } catch (error) {
+                console.error("Error accessing webcam:", error);
+                elements.cameraError.style.display = 'block';
+                elements.cameraToggle.checked = false;
+            }
+        }
+
+        // Stop camera
+        function stopCamera() {
+            if (state.stream) {
+                state.stream.getTracks().forEach(track => track.stop());
+                elements.video.srcObject = null;
+                state.stream = null;
+            }
+        }
+
+        // Capture and recognize faces
+        async function captureAndRecognize() {
+            if (state.isProcessing || !state.stream) return;
+            
+            setProcessingState(true);
+            showToast('info', 'Processing', 'Analyzing facial data...');
+            
+            try {
+                const imageBlob = await captureImage();
+                const result = await recognizeFaces(imageBlob);
+                
+                if (result.attendance && result.attendance.length > 0) {
+                    state.attendanceData = [...result.attendance, ...state.attendanceData];
+                    updateAttendanceDisplay();
+                    showToast('success', 'Success', `Recognized ${result.attendance.length} person(s)`);
+                } else {
+                    showToast('warning', 'No Match', 'No recognized faces in the frame');
+                }
+            } catch (error) {
+                console.error("Recognition error:", error);
+                showToast('error', 'Error', 'Failed to process recognition');
+            } finally {
+                setProcessingState(false);
+            }
+        }
+
+        // Capture image from video
+        function captureImage() {
+            return new Promise((resolve) => {
+                const canvas = document.createElement("canvas");
+                canvas.width = elements.video.videoWidth;
+                canvas.height = elements.video.videoHeight;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(elements.video, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.95);
+            });
+        }
+
+        // Send image to API for recognition
+        async function recognizeFaces(imageBlob) {
+            const formData = new FormData();
+            formData.append("image", imageBlob, "capture.jpg");
+            
+            const response = await fetch(API_ENDPOINTS.recognize, { 
+                method: "POST", 
+                body: formData 
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+            
+            return await response.json();
+        }
+
+        // Download attendance records as CSV
+        async function downloadAttendanceCSV() {
+            try {
+                showToast('info', 'Processing', 'Preparing download...');
+                const response = await fetch(API_ENDPOINTS.download);
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                window.location.href = `${API_BASE_URL}/${data.csv_file}`;
+                showToast('success', 'Success', 'Download started');
+            } catch (error) {
+                console.error("Download error:", error);
+                showToast('error', 'Error', 'Failed to download CSV');
+            }
+        }
+
+        // Fetch holidays
+        async function fetchHolidays() {
+            try {
+                const response = await fetch(API_ENDPOINTS.holidays);
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                state.holidayData = data.holidays || [];
+                updateHolidayDisplay();
+            } catch (error) {
+                console.error("Error fetching holidays:", error);
+                elements.holidayRecords.innerHTML = `
+                    <div class="text-danger">
+                        <h5>REPUBLIC DAY <br> INDEPENDENCE DAY <br> HOLI <h5>
+                    </div>`;
+            }
+        }
+
+        // Update attendance display
+        function updateAttendanceDisplay() {
+            if (state.attendanceData.length === 0) {
+                elements.noRecords.style.display = 'block';
+                return;
+            }
+            
+            elements.noRecords.style.display = 'none';
+            elements.attendanceRecords.innerHTML = '';
+            
+            state.attendanceData.forEach(record => {
+                const listItem = document.createElement("div");
+                listItem.className = "record-item fade-in";
+                listItem.innerHTML = `
+                    <div>
+                        <span class="record-name">${record.name}</span>
+                    </div>
+                    <span class="record-time">${formatTimestamp(record.time)}</span>
+                `;
+                elements.attendanceRecords.appendChild(listItem);
+            });
+        }
+
+        // Update holiday display
+        function updateHolidayDisplay() {
+            elements.holidayRecords.innerHTML = '';
+            
+            if (state.holidayData.length === 0) {
+                elements.holidayRecords.innerHTML = `
+                    <div class="text-muted">
+                        <i class="fas fa-calendar-day"></i> No upcoming holidays
+                    </div>`;
+                return;
+            }
+            
+            state.holidayData.forEach(holiday => {
+                const listItem = document.createElement("div");
+                listItem.className = "record-item fade-in";
+                listItem.innerHTML = `
+                    <div>
+                        <span class="record-name">${holiday.name}</span>
+                    </div>
+                    <span class="record-time">${formatDate(holiday.date)}</span>
+                `;
+                elements.holidayRecords.appendChild(listItem);
+            });
+        }
+
+        // Toggle processing state
+        function setProcessingState(isProcessing) {
+            state.isProcessing = isProcessing;
+            const buttons = [elements.captureBtn, elements.captureOverlay];
+            
+            buttons.forEach(button => {
+                if (isProcessing) {
+                    button.classList.add('processing');
+                    button.disabled = true;
+                } else {
+                    button.classList.remove('processing');
+                    button.disabled = false;
+                }
+            });
+        }
+
+        // Create toast notification
+        function showToast(type, title, message) {
+            const iconMap = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+            
+            const colorMap = {
+                success: 'var(--success-color)',
+                error: 'var(--danger-color)',
+                warning: 'var(--warning-color)',
+                info: 'var(--info-color)'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast fade-in';
+            toast.style.backgroundColor = 'white';
+            toast.style.boxShadow = 'var(--box-shadow)';
+            toast.style.borderRadius = 'var(--border-radius)';
+            toast.style.marginBottom = '10px';
+            toast.style.minWidth = '280px';
+            
+            toast.innerHTML = `
+                <div class="p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="${iconMap[type]}" style="color: ${colorMap[type]}; margin-right: 8px;"></i>
+                        <strong>${title}</strong>
+                        <button type="button" class="btn-close ms-auto" aria-label="Close"></button>
+                    </div>
+                    <div>${message}</div>
+                </div>
+            `;
+            
+            elements.toastContainer.appendChild(toast);
+            
+            // Add close button functionality
+            toast.querySelector('.btn-close').addEventListener('click', () => {
+                elements.toastContainer.removeChild(toast);
+            });
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode === elements.toastContainer) {
+                    elements.toastContainer.removeChild(toast);
+                }
+            }, 5000);
+        }
+
+        // Utilities
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Event Listeners
+        elements.captureBtn.addEventListener('click', captureAndRecognize);
+        elements.captureOverlay.addEventListener('click', captureAndRecognize);
+        elements.downloadBtn.addEventListener('click', downloadAttendanceCSV);
+        elements.cameraToggle.addEventListener('change', initCamera);
+
+        // Filter dropdown functionality
+        document.querySelectorAll('[data-filter]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const filterType = e.target.getAttribute('data-filter');
+                console.log(`Filter by: ${filterType}`);
+                // Implement filtering logic here
+            });
+        });
+
+        // Initialize the application
+        function init() {
+            updateDateDisplay();
+            initCamera();
+            fetchHolidays();
+            updateAttendanceDisplay();
+            
+            // Set up periodic date refreshing
+            setInterval(updateDateDisplay, 60000);
+        }
+
+        // Start the application when page loads
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Clean up resources when page is unloaded
+        window.addEventListener('beforeunload', stopCamera);
+    </script>
+</body>
+</html>

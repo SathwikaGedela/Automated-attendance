@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise AI Attendance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f5f7; }
+        .container { max-width: 400px; margin-top: 100px; }
+        .hidden { display: none; }
+        .camera-container { text-align: center; }
+        video { width: 100%; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <!-- Display Valid Credentials -->
+    <div class="container text-center">
+        <p><strong>Valid Usernames & Passwords:</strong></p>
+        <p>Admin: <strong>admin / admin123</strong></p>
+        <p>User: <strong>user / user123</strong></p>
+        <p>Manager: <strong>manager / manager123</strong></p>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login-section" class="container">
+        <div class="card p-4 shadow">
+            <h3 class="text-center">AI Attendance Login</h3>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+            <p id="login-error" class="text-danger text-center mt-3 hidden">Invalid Credentials</p>
+        </div>
+    </div>
+
+    <!-- Main Content Section (Initially Hidden) -->
+    <div id="main-content" class="hidden">
+        <div class="container mt-5">
+            <h1 class="text-center">Welcome to Enterprise AI Attendance</h1>
+            <p class="text-center">This is your main website content, accessible after login.</p>
+            
+            <!-- Your original website content goes here -->
+            <div class="app-container">
+                <header class="app-header">
+                    <h1 class="display-6">Enterprise AI Attendance Management</h1>
+                    <p class="text-muted">Powered by Advanced Facial Recognition Technology</p>
+                </header>
+                <div class="camera-container">
+                    <video id="video" autoplay muted></video>
+                    <button id="capture-btn" class="btn btn-primary mt-3">Capture & Recognize</button>
+                </div>
+                <button id="send-alert" class="btn btn-danger mt-3">Send Alert Email</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const users = [
+            { username: "admin", password: "admin123", role: "Administrator" },
+            { username: "user", password: "user123", role: "Standard User" },
+            { username: "manager", password: "manager123", role: "Manager" }
+        ];
+
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            let user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                document.getElementById("login-section").classList.add("hidden");
+                document.getElementById("main-content").classList.remove("hidden");
+            } else {
+                document.getElementById("login-error").classList.remove("hidden");
+            }
+        });
+
+        document.getElementById("send-alert").addEventListener("click", function() {
+            fetch("http://127.0.0.1:5000/send_alert", { method: "POST" })
+                .then(response => response.json())
+                .then(data => alert(data.message))
+                .catch(error => console.error("Error sending alert:", error));
+        });
+    </script>
+</body>
+</html>
